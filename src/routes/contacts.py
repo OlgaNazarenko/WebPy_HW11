@@ -27,7 +27,7 @@ async def get_contacts(skip: int = 0, limit: int = 10, db: Session = Depends(get
 
 
 @router.get("/{contact_id}", response_model=ContactResponse)
-async def get_contact(contact_id: int, db: Session = Depends(get_db)):
+async def get_contact(contact_id: int, db: Session = Depends(get_db)) -> Response:
     contact = await repository_contacts.get_contact(contact_id, db)
     if contact is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Not found')
@@ -46,7 +46,7 @@ async def update_contact(body: ContactUpdate, contact_id: int, db: Session = Dep
 async def get_contacts_choice(name: str | None = None,
                              surname: str | None = None,
                              email: EmailStr | None = None,
-                             db: Session = Depends(get_db)):
+                             db: Session = Depends(get_db)) -> Response:
     contact = await repository_contacts.get_contacts_choice(name, surname, email, db)
 
     if contact is None:
@@ -56,7 +56,7 @@ async def get_contacts_choice(name: str | None = None,
 
 
 @router.get('/birthdays/', response_model=List[ContactResponse])
-async def get_contacts_birthdays(db: Session = Depends(get_db)):
+async def get_contacts_birthdays(db: Session = Depends(get_db)) -> Response:
     contacts = await repository_contacts.get_contacts_birthdays(db)
     print(f"{contacts=}")
     return contacts
