@@ -8,4 +8,4 @@ Run the following command to start the FastAPI server with uvicorn:
 
 
 [^1]: It was done with SQLite instead of PostgreSQL due to the system issues. 
-    I was not able to install psycopg2. 
+    I was not able to add/install psycopg2. 
