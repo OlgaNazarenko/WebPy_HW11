@@ -4,9 +4,9 @@ from fastapi import FastAPI, Depends, HTTPException, status, Request
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-
 from src.routes import contacts
 from src.database.connect import get_db
+
 
 app = FastAPI()
 

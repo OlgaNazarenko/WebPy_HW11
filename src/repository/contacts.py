@@ -26,6 +26,7 @@ async def get_contact(contact_id: int, db: Session):
 
 async def update_contact(body: ContactModel, contact_id: int, db: Session):
     contact = db.query(Contact).filter_by(id=contact_id).first()
+
     if contact:
         contact.name = body.name
         contact.surname = body.surname
@@ -67,6 +68,7 @@ async def get_contacts_birthdays(db: Session):
 
 async def update_contact_status(body: ContactStatusUpdate, contact_id: int, db: Session):
     contact = db.query(Contact).filter(Contact.id == contact_id).first()
+
     if contact:
         contact.done = body.done
         db.commit()
@@ -75,6 +77,7 @@ async def update_contact_status(body: ContactStatusUpdate, contact_id: int, db: 
 
 async def remove_contact(contact_id: int, db: Session):
     contact = db.query(Contact).filter_by(id=contact_id).first()
+
     if contact:
         db.delete(contact)
         db.commit()
