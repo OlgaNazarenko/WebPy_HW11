@@ -10,7 +10,6 @@ packages = [{include = "webpy_hw11"}]
 python = "^3.10"
 sqlalchemy = "^2.0.3"
 alembic = "^1.9.3"
-psycopg2-binary = "^2.9.5"
 pydantic = {extras = ["email"], version = "^1.10.4"}
 datetime = "^5.0"
 fastapi = "^0.91.0"
