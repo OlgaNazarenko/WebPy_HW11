@@ -2,13 +2,14 @@ from datetime import datetime, timedelta
 from typing import List
 
 from sqlalchemy.orm import Session
+from sqlalchemy import and_
 
 from src.database.model import Contact
 from src.schemas import ContactModel, ContactStatusUpdate
 
 
 async def create_contact(body: ContactModel, db: Session):
-    contact = Contact(**body.dict())
+    contact = Contact(name=body.name,surname=body.surname, email=body.email,mobile=body.mobile)
     db.add(contact)
     db.commit()
     db.refresh(contact)
@@ -16,7 +17,7 @@ async def create_contact(body: ContactModel, db: Session):
 
 
 async def get_contacts(skip: int, limit: int, db: Session):
-    contact = db.query(Contact).offset(skip).limit(limit).all()
+    contact = db.query(Contact).filter(and_(Contact.user_id == user.id)).offset(skip).limit(limit).all()
     return contact
 
 
@@ -25,7 +26,7 @@ async def get_contact(contact_id: int, db: Session):
 
 
 async def update_contact(body: ContactModel, contact_id: int, db: Session):
-    contact = db.query(Contact).filter_by(id=contact_id).first()
+    contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id == user.id)).first()
 
     if contact:
         contact.name = body.name
@@ -67,7 +68,7 @@ async def get_contacts_birthdays(db: Session):
 
 
 async def update_contact_status(body: ContactStatusUpdate, contact_id: int, db: Session):
-    contact = db.query(Contact).filter(Contact.id == contact_id).first()
+    contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id == user.id)).first()
 
     if contact:
         contact.done = body.done
@@ -76,7 +77,7 @@ async def update_contact_status(body: ContactStatusUpdate, contact_id: int, db: 
 
 
 async def remove_contact(contact_id: int, db: Session):
-    contact = db.query(Contact).filter_by(id=contact_id).first()
+    contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id == user.id)).first()
 
     if contact:
         db.delete(contact)

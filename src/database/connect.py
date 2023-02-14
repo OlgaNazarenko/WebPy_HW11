@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 
-DATABASE = 'sqlite:///mycontact.db'
+DATABASE = 'sqlite:///auth_contacts.db'
 engine = create_engine(DATABASE, connect_args={"check_same_thread": False})
 
 SessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engine)

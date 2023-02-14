@@ -1,11 +1,13 @@
-## WebPy_HW11
+## WebPy_HW12
 REST API for storing and managing contacts [^1].
 
+Run the following command to start the FastAPI server:
 
-Run the following command to start the FastAPI server with uvicorn:
+    python3 main.py
 
-    uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+In the code was added the following:
+- An authentication mechanism in the application; 
+- An authorization using JWT tokens, so that all operations with contacts are performed only by registered users; 
+- The user has access only to his/her operations with contacts.
 
-
-[^1]: It was done with SQLite instead of PostgreSQL due to the system issues. 
-    I was not able to add/install psycopg2. 
+[^1]: It was done with SQLite.
