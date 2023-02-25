@@ -4,28 +4,35 @@ from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
-from src.database.model import Contact
+from src.database.model import Contact, User
 from src.schemas import ContactModel, ContactStatusUpdate
 
 
-async def create_contact(body: ContactModel, db: Session):
-    contact = Contact(name=body.name,surname=body.surname, email=body.email,mobile=body.mobile,user_id=user.id)
+async def create_contact(body: ContactModel, user: User, db: Session) -> Contact:
+    contact = Contact(
+        name=body.name,
+        surname=body.surname,
+        email=body.email,
+        mobile=body.mobile,
+        date_of_birth=body.date_of_birth,
+        user_id=user.id
+    )
     db.add(contact)
     db.commit()
     db.refresh(contact)
     return contact
 
 
-async def get_contacts(skip: int, limit: int, db: Session):
+async def get_contacts(skip: int, limit: int,user: User, db: Session) -> List[Contact]:
     contact = db.query(Contact).filter(Contact.user_id == user.id).offset(skip).limit(limit).all()
     return contact
 
 
-async def get_contact(contact_id: int, db: Session):
+async def get_contact(contact_id: int, user: User,db: Session) -> Contact:
     return db.query(Contact).filter(and_(Contact.id == contact_id, Contact.user_id == user.id)).first()
 
 
-async def update_contact(body: ContactModel, contact_id: int, db: Session):
+async def update_contact(body: ContactModel, contact_id: int,user: User, db: Session) -> Contact | None:
     contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id == user.id)).first()
 
     if contact:
@@ -39,8 +46,11 @@ async def update_contact(body: ContactModel, contact_id: int, db: Session):
 
 
 async def get_contacts_choice(name: str | None, surname: str | None,
-                              email: str | None, db: Session):
-    contacts = db.query(Contact)
+                              email: str | None, user: User, db: Session):
+    contacts = db.query(Contact).filter(and_(or_(
+        Contact.name == name, Contact.surname == surname, Contact.email == email),
+        Contact.user_id == user.id)
+    )
 
     if name:
         contacts = contacts.filter(Contact.name.like(f"%{name}%"))
@@ -54,7 +64,7 @@ async def get_contacts_choice(name: str | None, surname: str | None,
     return contact
 
 
-async def get_contacts_birthdays(db: Session):
+async def get_contacts_birthdays(db: Session) -> List[Contact]:
     seven_days_from_now = datetime.now().date() + timedelta(days=7)
     contacts = db.query(Contact).all()
 
@@ -66,7 +76,7 @@ async def get_contacts_birthdays(db: Session):
     return contacts_with_birthdays
 
 
-async def update_contact_status(body: ContactStatusUpdate, contact_id: int, db: Session):
+async def update_contact_status(body: ContactStatusUpdate, contact_id: int, user: User, db: Session) -> Contact | None:
     contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id == user.id)).first()
 
     if contact:
@@ -75,7 +85,7 @@ async def update_contact_status(body: ContactStatusUpdate, contact_id: int, db: 
     return contact
 
 
-async def remove_contact(contact_id: int, db: Session):
+async def remove_contact(contact_id: int, user: User, db: Session) -> Contact | None:
     contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id == user.id)).first()
 
     if contact:

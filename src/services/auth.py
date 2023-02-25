@@ -16,7 +16,7 @@ class Auth:
     pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
     SECRET_KEY = "secret_key"
     ALGORITHM = "HS256"
-    oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+    oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
     def verify_password(self, plain_password, hashed_password):
@@ -61,8 +61,8 @@ class Auth:
             detail="Could not validate credentials",
         )
         try:
-            payload = jwt.decode(token, self.SECRET_KEY, algorithm=[self.ALGORITHM])
-            if paylod['scope'] == 'access_token':
+            payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
+            if payload['scope'] == 'access_token':
                 email: str = payload['sub']
                 if email is None:
                     raise credentials_exception

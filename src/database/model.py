@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, func
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.sql.sqltypes import Date, DateTime
+from sqlalchemy.sql.schema import ForeignKey
 
 
 Base = declarative_base()
@@ -14,6 +15,8 @@ class Contact(Base):
     email = Column(String(100), unique=True, index=True)
     mobile = Column(Integer, nullable=True)
     date_of_birth = Column(Date)
+    user_id = Column('user_id', ForeignKey('users.id',ondelete='CASCADE'), default=None)
+    user = relationship('User', backref='contacts')
 
 
 class User(Base):
