@@ -39,7 +39,7 @@ async def get_contact(contact_id: int, user: User,db: Session) -> Contact:
     return db.query(Contact).filter(and_(Contact.id == contact_id, Contact.user_id == user.id)).first()
 
 
-async def update_contact(body: ContactModel, contact_id: int,user: User, db: Session) -> Contact | None:
+async def update_contact(body: ContactModel, contact_id: int, user: User, db: Session) -> Contact | None:
     contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id == user.id)).first()
 
     if contact:
@@ -71,30 +71,17 @@ async def get_contacts_choice(name: str | None, surname: str | None,
     return contact
 
 
-async def get_contacts_birthdays(user: User, db: Session) -> List[Contact]:
+async def get_contacts_birthdays(user: User, db: Session):
     seven_days_from_now = datetime.now().date() + timedelta(days=7)
-    contacts = db.query(Contact).all()
+    contacts = db.query(Contact).filter(Contact.user_id == user.id).all()
 
     contacts_with_birthdays = [
         contact for contact in contacts if
         datetime.now().date().day <= contact.date_of_birth.day < seven_days_from_now.day
     ]
-    print(f"{contacts_with_birthdays=}")
 
     return contacts_with_birthdays
 
-# async def get_contacts_birthdays(user: User, db: Session) -> List[Contact]:
-#     seven_days_from_now = datetime.now().date() + timedelta(days=7)
-#     contacts = db.query(Contact).all()
-#
-#     contacts_with_birthdays = [
-#         contact for contact in contacts if
-#         contact.date_of_birth is not None and datetime.now().date().day <= contact.date_of_birth.day < seven_days_from_now.day
-#     ]
-#     print(f"{contacts_with_birthdays=}")
-#
-#     return contacts_with_birthdays
-#
 
 async def update_contact_status(body: ContactStatusUpdate, contact_id: int, user: User, db: Session) -> Contact | None:
     contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id == user.id)).first()

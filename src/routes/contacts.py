@@ -19,17 +19,13 @@ router = APIRouter(prefix='/contacts', tags=["contacts"])
 
 @router.post("/new/", response_model=ContactResponse, status_code=status.HTTP_201_CREATED)
 async def create_contact(body: ContactModel, db: Session = Depends(get_db),
-                         current_user: User = Depends(auth_service.get_current_user)) -> str :
+                         current_user: User = Depends(auth_service.get_current_user)) -> Contact:
     contact = await repository_contacts.create_contact(body, current_user, db)
-    print(f"{contact=}")
-
-    if contact:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Contact already exists")
 
     if contact is None:
         raise HTTPException(status_code = 400, detail = "Creation of contact failed")
 
-    return f'{contact}, "message": "Contact created successfully!"'
+    return contact
 
 
 @router.get('/', response_model=List[ContactResponse])
@@ -56,6 +52,7 @@ async def update_contact(body: ContactUpdate, contact_id: int, db: Session = Dep
 
     if contact is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Found")
+
     return contact
 
 
@@ -76,7 +73,8 @@ async def get_contacts_choice(name: str | None = None,
 @router.get('/birthdays/', response_model=List[ContactResponse])
 async def get_contacts_birthdays(db: Session = Depends(get_db),
                                  current_user: User = Depends(auth_service.get_current_user)) -> list[Contact]:
-    contacts = await repository_contacts.get_contacts_birthdays(db, current_user)
+    contacts = await repository_contacts.get_contacts_birthdays(current_user, db)
+
     return contacts
 
 
@@ -89,6 +87,7 @@ async def update_contact_status(body: ContactStatusUpdate,
 
     if contact is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contact not found")
+
     return contact
 
 
