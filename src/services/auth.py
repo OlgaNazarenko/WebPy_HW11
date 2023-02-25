@@ -14,9 +14,10 @@ from src.repository import users as repository_users
 
 class Auth:
     pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
-    SECRET_KEY = "995f3abc28fc5e1126c4a4e9cc64da99fd5d7976e524488c515b342869129bbc"
+    SECRET_KEY = "secret_key"
     ALGORITHM = "HS256"
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
 
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)
@@ -54,7 +55,7 @@ class Auth:
         except JWTError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
 
-    async def get_current_user(self, token: HTTPAuthorizationCredentials = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    async def get_current_user(self, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
@@ -62,7 +63,7 @@ class Auth:
         try:
             payload = jwt.decode(token, self.SECRET_KEY, algorithm=[self.ALGORITHM])
             if paylod['scope'] == 'access_token':
-                email = payload['sub']
+                email: str = payload['sub']
                 if email is None:
                     raise credentials_exception
             else:

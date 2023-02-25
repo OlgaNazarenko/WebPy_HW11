@@ -9,7 +9,7 @@ from src.schemas import ContactModel, ContactStatusUpdate
 
 
 async def create_contact(body: ContactModel, db: Session):
-    contact = Contact(name=body.name,surname=body.surname, email=body.email,mobile=body.mobile)
+    contact = Contact(name=body.name,surname=body.surname, email=body.email,mobile=body.mobile,user_id=user.id)
     db.add(contact)
     db.commit()
     db.refresh(contact)
@@ -17,12 +17,12 @@ async def create_contact(body: ContactModel, db: Session):
 
 
 async def get_contacts(skip: int, limit: int, db: Session):
-    contact = db.query(Contact).filter(and_(Contact.user_id == user.id)).offset(skip).limit(limit).all()
+    contact = db.query(Contact).filter(Contact.user_id == user.id).offset(skip).limit(limit).all()
     return contact
 
 
 async def get_contact(contact_id: int, db: Session):
-    return db.query(Contact).filter(Contact.id == contact_id).first()
+    return db.query(Contact).filter(and_(Contact.id == contact_id, Contact.user_id == user.id)).first()
 
 
 async def update_contact(body: ContactModel, contact_id: int, db: Session):
@@ -62,7 +62,6 @@ async def get_contacts_birthdays(db: Session):
         contact for contact in contacts if
         datetime.now().date().day <= contact.date_of_birth.day < seven_days_from_now.day
     ]
-    print(f"{contacts_with_birthdays=}")
 
     return contacts_with_birthdays
 
