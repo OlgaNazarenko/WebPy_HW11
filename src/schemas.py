@@ -19,7 +19,7 @@ class ContactStatusUpdate(BaseModel):
 
 
 class ContactResponse(ContactModel):
-    id: int | None
+    id: int
 
     class Config:
         orm_mode = True

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import List
 
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 
 from src.database.model import Contact, User
 from src.schemas import ContactModel, ContactStatusUpdate
@@ -10,6 +10,7 @@ from src.schemas import ContactModel, ContactStatusUpdate
 
 async def create_contact(body: ContactModel, user: User, db: Session) -> Contact:
     contact = Contact(
+        id=None,
         name=body.name,
         surname=body.surname,
         email=body.email,
@@ -18,8 +19,14 @@ async def create_contact(body: ContactModel, user: User, db: Session) -> Contact
         user_id=user.id
     )
     db.add(contact)
-    db.commit()
+
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise ValueError ("Failed to create user", str(e))
     db.refresh(contact)
+
     return contact
 
 
@@ -64,7 +71,7 @@ async def get_contacts_choice(name: str | None, surname: str | None,
     return contact
 
 
-async def get_contacts_birthdays(db: Session) -> List[Contact]:
+async def get_contacts_birthdays(user: User, db: Session) -> List[Contact]:
     seven_days_from_now = datetime.now().date() + timedelta(days=7)
     contacts = db.query(Contact).all()
 
@@ -72,9 +79,22 @@ async def get_contacts_birthdays(db: Session) -> List[Contact]:
         contact for contact in contacts if
         datetime.now().date().day <= contact.date_of_birth.day < seven_days_from_now.day
     ]
+    print(f"{contacts_with_birthdays=}")
 
     return contacts_with_birthdays
 
+# async def get_contacts_birthdays(user: User, db: Session) -> List[Contact]:
+#     seven_days_from_now = datetime.now().date() + timedelta(days=7)
+#     contacts = db.query(Contact).all()
+#
+#     contacts_with_birthdays = [
+#         contact for contact in contacts if
+#         contact.date_of_birth is not None and datetime.now().date().day <= contact.date_of_birth.day < seven_days_from_now.day
+#     ]
+#     print(f"{contacts_with_birthdays=}")
+#
+#     return contacts_with_birthdays
+#
 
 async def update_contact_status(body: ContactStatusUpdate, contact_id: int, user: User, db: Session) -> Contact | None:
     contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id == user.id)).first()
