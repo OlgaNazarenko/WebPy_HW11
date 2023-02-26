@@ -78,9 +78,11 @@ async def get_contacts_birthdays(user: User, db: Session) :
     start_date = datetime.now().date()
     end_date = start_date + timedelta(days = 7)
 
-    contacts=db.execute(
-        text("SELECT * FROM contacts WHERE strftime('%m-%d', date_of_birth) BETWEEN :start_date AND :end_date") ,
-        {"start_date" : start_date.strftime("%m-%d") , "end_date" : end_date.strftime("%m-%d")}
+    params = {"start_date" : start_date.strftime("%m-%d") , "end_date" : end_date.strftime("%m-%d")}
+
+    contacts = db.execute(
+        text("SELECT * FROM contacts WHERE strftime('%m-%d', date_of_birth) BETWEEN :start_date AND :end_date"),
+        params
     ).fetchall()
 
     return contacts
