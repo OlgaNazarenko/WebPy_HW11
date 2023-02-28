@@ -1,7 +1,13 @@
 ## WebPy_HW12
 REST API for storing and managing contacts [^1].
 
-Run the following command to start the FastAPI server:
+For this project it was used poetry, which is designed for dependency management and packaging in this project. It 
+allowed declaring the libraries of this project depends on and manages (install/update) them for you. To activate 
+the virtual environment, you need to run the command:
+
+    poetry shell
+
+and then run the following command to start the FastAPI server:
 
     python3 main.py
 
